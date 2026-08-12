@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JustiLink – Documents</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">⚖️</div>
+      <div class="brand-text"><h2>JustiLink</h2><p>District de Longueuil</p></div>
+    </div>
+    <nav class="sidebar-nav">
+      <p class="nav-section-title">Navigation</p>
+      <a href="dashboard.html" class="nav-item" data-page="dashboard"><span class="nav-icon">📊</span> Tableau de bord</a>
+      <a href="admissibilite.html" class="nav-item" data-page="admissibilite"><span class="nav-icon">✅</span> Admissibilité</a>
+      <a href="dossiers.html" class="nav-item" data-page="dossiers"><span class="nav-icon">📁</span> Dossiers</a>
+      <a href="documents.html" class="nav-item" data-page="documents"><span class="nav-icon">📄</span> Documents</a>
+      <a href="transmissions.html" class="nav-item" data-page="transmissions"><span class="nav-icon">📡</span> Transmissions</a>
+      <p class="nav-section-title" data-role="admin">Administration</p>
+      <a href="utilisateurs.html" class="nav-item" data-page="utilisateurs" data-role="admin"><span class="nav-icon">👥</span> Utilisateurs</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebar-avatar">?</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebar-name">Chargement…</div>
+          <div class="user-role" id="sidebar-role">—</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logout-btn"><span>🚪</span> Déconnexion</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>📄 Gestion des documents</h1>
+        <p>Dépôt, validation et suivi des pièces justificatives</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" id="btn-deposer">+ Déposer un document</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- VUE LISTE -->
+      <div id="view-liste">
+        <div class="filters-bar">
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" id="search-input" placeholder="Rechercher par nom de fichier…" />
+          </div>
+          <select class="filter-select" id="filter-statut">
+            <option value="">Tous les statuts</option>
+            <option value="depose">Déposé</option>
+            <option value="en_traitement">En traitement</option>
+            <option value="valide">Validé</option>
+            <option value="rejete">Rejeté</option>
+          </select>
+          <select class="filter-select" id="filter-categorie">
+            <option value="">Toutes les catégories</option>
+            <option value="Pièce justificative">Pièce justificative</option>
+            <option value="Preuve">Preuve</option>
+            <option value="Décision">Décision</option>
+            <option value="Correspondance">Correspondance</option>
+            <option value="Formulaire officiel">Formulaire officiel</option>
+          </select>
+        </div>
+
+        <!-- STATS RAPIDES -->
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;" id="doc-stats">
+          <div class="stat-card"><div class="stat-icon blue">📄</div><div class="stat-info"><div class="stat-value" id="s-total">—</div><div class="stat-label">Total documents</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">✅</div><div class="stat-info"><div class="stat-value" id="s-valides">—</div><div class="stat-label">Validés</div></div></div>
+          <div class="stat-card"><div class="stat-icon orange">⏳</div><div class="stat-info"><div class="stat-value" id="s-attente">—</div><div class="stat-label">En attente</div></div></div>
+          <div class="stat-card"><div class="stat-icon red">❌</div><div class="stat-info"><div class="stat-value" id="s-rejetes">—</div><div class="stat-label">Rejetés</div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div><h3>📋 Liste des documents</h3><p id="count-label">Chargement…</p></div>
+            <button class="btn btn-secondary btn-sm" onclick="loadListe()">🔄 Actualiser</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Numéro</th>
+                  <th>Fichier</th>
+                  <th>Catégorie</th>
+                  <th>Type</th>
+                  <th>Taille</th>
+                  <th>Statut</th>
+                  <th>Déposé le</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="liste-tbody">
+                <tr><td colspan="8" style="text-align:center;padding:32px;color:#64748b;">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VUE DÉPÔT -->
+      <div id="view-depot" class="hidden">
+        <div class="card" style="max-width:680px;margin:0 auto;">
+          <div class="card-header">
+            <div>
+              <h3>📤 Déposer un document</h3>
+              <p>Formats acceptés : PDF, DOCX, XLSX, PNG, JPG (max 10 Mo)</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="btn-retour">← Retour</button>
+          </div>
+          <div class="card-body">
+
+            <!-- Zone de dépôt -->
+            <div id="drop-zone" style="border:2px dashed #cbd5e1;border-radius:14px;padding:40px;text-align:center;cursor:pointer;transition:all 0.2s;background:#f8fafc;margin-bottom:20px;">
+              <div style="font-size:48px;margin-bottom:12px;">📂</div>
+              <p style="font-weight:600;color:#1e293b;margin-bottom:4px;">Glissez un fichier ici</p>
+              <p style="font-size:13px;color:#64748b;margin-bottom:16px;">ou cliquez pour parcourir</p>
+              <input type="file" id="file-input" accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg" style="display:none;" />
+              <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('file-input').click()">Parcourir…</button>
+            </div>
+
+            <!-- Fichier sélectionné -->
+            <div id="file-selected" class="hidden" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:14px;margin-bottom:20px;display:flex;align-items:center;gap:12px;">
+              <span style="font-size:24px;">📄</span>
+              <div style="flex:1;">
+                <div id="file-name" style="font-weight:600;font-size:14px;"></div>
+                <div id="file-size" style="font-size:12px;color:#64748b;"></div>
+              </div>
+              <button onclick="clearFile()" style="color:#64748b;font-size:18px;background:none;border:none;cursor:pointer;">✕</button>
+            </div>
+
+            <div class="form-grid form-grid-2">
+              <div>
+                <label class="form-label">Dossier associé <span style="color:red">*</span></label>
+                <input type="number" class="form-control" id="f-dossier-id" placeholder="ID du dossier" required />
+              </div>
+              <div>
+                <label class="form-label">Catégorie <span style="color:red">*</span></label>
+                <select class="form-control" id="f-categorie" required>
+                  <option value="Pièce justificative">Pièce justificative</option>
+                  <option value="Preuve">Preuve</option>
+                  <option value="Décision">Décision</option>
+                  <option value="Correspondance">Correspondance</option>
+                  <option value="Formulaire officiel">Formulaire officiel</option>
+                  <option value="Autre">Autre</option>
+                </select>
+              </div>
+              <div class="col-span-2">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" id="f-description" rows="2" placeholder="Brève description du document (optionnel)"></textarea>
+              </div>
+            </div>
+
+            <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:12px;">
+              <button class="btn btn-secondary" id="btn-annuler">Annuler</button>
+              <button class="btn btn-primary" id="btn-upload" onclick="deposer()">
+                <span id="upload-text">📤 Déposer le document</span>
+                <span id="upload-loader" class="loading-spinner hidden"></span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+requireAuth();
+initSidebar('documents');
+
+let selectedFile = null;
+
+// Pre-fill dossier_id from URL
+const params = new URLSearchParams(window.location.search);
+if (params.get('dossier_id')) {
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('f-dossier-id');
+    if (el) el.value = params.get('dossier_id');
+  });
+}
+
+function showListe() {
+  document.getElementById('view-liste').classList.remove('hidden');
+  document.getElementById('view-depot').classList.add('hidden');
+  loadListe();
+  loadStats();
+}
+function showDepot() {
+  document.getElementById('view-liste').classList.add('hidden');
+  document.getElementById('view-depot').classList.remove('hidden');
+  if (params.get('dossier_id')) document.getElementById('f-dossier-id').value = params.get('dossier_id');
+}
+
+// Drag & Drop
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#1a3a6b'; dropZone.style.background = '#eff6ff'; });
+dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#cbd5e1'; dropZone.style.background = '#f8fafc'; });
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.style.borderColor = '#cbd5e1';
+  dropZone.style.background = '#f8fafc';
+  const file = e.dataTransfer.files[0];
+  if (file) selectFile(file);
+});
+dropZone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) selectFile(fileInput.files[0]); });
+
+function selectFile(file) {
+  selectedFile = file;
+  document.getElementById('file-name').textContent = file.name;
+  document.getElementById('file-size').textContent = (file.size / 1024).toFixed(1) + ' Ko';
+  document.getElementById('file-selected').classList.remove('hidden');
+  dropZone.style.display = 'none';
+}
+
+function clearFile() {
+  selectedFile = null;
+  fileInput.value = '';
+  document.getElementById('file-selected').classList.add('hidden');
+  dropZone.style.display = '';
+}
+
+async function loadStats() {
+  try {
+    const s = await DocumentsAPI.stats();
+    document.getElementById('s-total').textContent   = s.total_documents ?? 0;
+    document.getElementById('s-valides').textContent = s.documents_valides ?? 0;
+    document.getElementById('s-attente').textContent = s.documents_en_attente ?? 0;
+    document.getElementById('s-rejetes').textContent = s.documents_rejetes ?? 0;
+  } catch(e) { /* silently fail */ }
+}
+
+async function loadListe() {
+  const statut    = document.getElementById('filter-statut').value;
+  const categorie = document.getElementById('filter-categorie').value;
+  let p = [];
+  if (statut) p.push(`statut=${statut}`);
+  if (categorie) p.push(`categorie=${encodeURIComponent(categorie)}`);
+  try {
+    const data = await DocumentsAPI.liste(p.join('&'));
+    const items = data.items || data;
+    document.getElementById('count-label').textContent = `${items.length} document(s) trouvé(s)`;
+    renderListe(items);
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+}
+
+function formatSize(bytes) {
+  if (!bytes) return '—';
+  if (bytes < 1024) return bytes + ' o';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' Ko';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' Mo';
+}
+
+function fileIcon(type) {
+  const icons = { pdf: '📕', docx: '📘', xlsx: '📗', png: '🖼️', jpg: '🖼️', jpeg: '🖼️' };
+  return icons[type?.toLowerCase()] || '📄';
+}
+
+function renderListe(items) {
+  const tbody = document.getElementById('liste-tbody');
+  if (!items || items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📭</div><h3>Aucun document</h3><p>Cliquez sur "+ Déposer un document" pour commencer.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = items.map(d => `
+    <tr>
+      <td class="td-primary">${d.numero_document}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span>${fileIcon(d.type_fichier)}</span>
+          <div>
+            <div style="font-weight:500;font-size:13px;">${d.nom_original.length > 30 ? d.nom_original.substring(0,30)+'…' : d.nom_original}</div>
+            ${d.description ? `<div class="td-muted">${d.description}</div>` : ''}
+          </div>
+        </div>
+      </td>
+      <td><span class="badge badge-secondary">${d.categorie}</span></td>
+      <td class="td-muted">${(d.type_fichier || '—').toUpperCase()}</td>
+      <td class="td-muted">${formatSize(d.taille_octets)}</td>
+      <td>${statutBadge(d.statut)}</td>
+      <td class="td-muted">${formatDate(d.cree_le)}</td>
+      <td>
+        ${d.statut === 'depose' ? `<button class="btn btn-sm btn-success" onclick="valider(${d.id})">✅ Valider</button>` : ''}
+        ${d.confidentiel ? '<span title="Confidentiel" style="margin-left:4px;">🔒</span>' : ''}
+        ${d.signe_electroniquement ? '<span title="Signé électroniquement" style="margin-left:4px;">✍️</span>' : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function valider(id) {
+  try {
+    await DocumentsAPI.valider(id);
+    showToast('Document validé avec succès !', 'success');
+    loadListe();
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+}
+
+async function deposer() {
+  if (!selectedFile) { showToast('Veuillez sélectionner un fichier', 'error'); return; }
+  const dossierId = document.getElementById('f-dossier-id').value;
+  if (!dossierId) { showToast('Veuillez indiquer l\'ID du dossier', 'error'); return; }
+
+  const btn = document.getElementById('btn-upload');
+  btn.disabled = true;
+  document.getElementById('upload-text').textContent = 'Envoi en cours…';
+  document.getElementById('upload-loader').classList.remove('hidden');
+
+  try {
+    const categorie   = document.getElementById('f-categorie').value;
+    const description = document.getElementById('f-description').value;
+    const doc = await DocumentsAPI.deposer(parseInt(dossierId), selectedFile, categorie, description);
+    showToast(`Document ${doc.numero_document} déposé avec succès !`, 'success');
+    clearFile();
+    showListe();
+  } catch(e) {
+    showToast('Erreur lors du dépôt : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('upload-text').textContent = '📤 Déposer le document';
+    document.getElementById('upload-loader').classList.add('hidden');
+  }
+}
+
+document.getElementById('btn-deposer').addEventListener('click', showDepot);
+document.getElementById('btn-retour').addEventListener('click', showListe);
+document.getElementById('btn-annuler').addEventListener('click', showListe);
+document.getElementById('filter-statut').addEventListener('change', loadListe);
+document.getElementById('filter-categorie').addEventListener('change', loadListe);
+
+loadListe();
+loadStats();
+</script>
+</body>
+</html>

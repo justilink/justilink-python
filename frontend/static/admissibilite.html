@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JustiLink – Admissibilité</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">⚖️</div>
+      <div class="brand-text"><h2>JustiLink</h2><p>District de Longueuil</p></div>
+    </div>
+    <nav class="sidebar-nav">
+      <p class="nav-section-title">Navigation</p>
+      <a href="dashboard.html" class="nav-item" data-page="dashboard"><span class="nav-icon">📊</span> Tableau de bord</a>
+      <a href="admissibilite.html" class="nav-item" data-page="admissibilite"><span class="nav-icon">✅</span> Admissibilité</a>
+      <a href="dossiers.html" class="nav-item" data-page="dossiers"><span class="nav-icon">📁</span> Dossiers</a>
+      <a href="documents.html" class="nav-item" data-page="documents"><span class="nav-icon">📄</span> Documents</a>
+      <a href="transmissions.html" class="nav-item" data-page="transmissions"><span class="nav-icon">📡</span> Transmissions</a>
+      <p class="nav-section-title" data-role="admin">Administration</p>
+      <a href="utilisateurs.html" class="nav-item" data-page="utilisateurs" data-role="admin"><span class="nav-icon">👥</span> Utilisateurs</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebar-avatar">?</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebar-name">Chargement…</div>
+          <div class="user-role" id="sidebar-role">—</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logout-btn"><span>🚪</span> Déconnexion</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>✅ Admissibilité à l'aide juridique</h1>
+        <p>Évaluation automatique selon les critères du ministère de la Justice</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" id="btn-nouvelle">+ Nouvelle demande</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- LISTE DES DEMANDES -->
+      <div id="view-liste">
+        <div class="filters-bar">
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" id="search-input" placeholder="Rechercher par numéro ou demandeur…" />
+          </div>
+          <select class="filter-select" id="filter-statut">
+            <option value="">Tous les statuts</option>
+            <option value="en_attente">En attente</option>
+            <option value="admissible">Admissible</option>
+            <option value="non_admissible">Non admissible</option>
+            <option value="revision_requise">Révision requise</option>
+          </select>
+          <select class="filter-select" id="filter-matiere">
+            <option value="">Toutes les matières</option>
+            <option value="civil">Civil</option>
+            <option value="familial">Familial</option>
+            <option value="logement">Logement</option>
+            <option value="immigration">Immigration</option>
+            <option value="penal_mineur">Pénal mineur</option>
+            <option value="administratif">Administratif</option>
+          </select>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div><h3>📋 Liste des demandes</h3><p id="count-label">Chargement…</p></div>
+            <button class="btn btn-secondary btn-sm" onclick="loadListe()">🔄 Actualiser</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Numéro</th>
+                  <th>Matière</th>
+                  <th>Revenu annuel</th>
+                  <th>Personnes à charge</th>
+                  <th>Score</th>
+                  <th>Statut</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="liste-tbody">
+                <tr><td colspan="8" style="text-align:center;padding:32px;color:#64748b;">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULAIRE NOUVELLE DEMANDE -->
+      <div id="view-form" class="hidden">
+        <div class="card" style="max-width:860px;margin:0 auto;">
+          <div class="card-header">
+            <div>
+              <h3>📝 Nouvelle demande d'admissibilité</h3>
+              <p>Remplissez toutes les informations pour évaluer l'admissibilité à l'aide juridique</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="btn-retour">← Retour</button>
+          </div>
+          <div class="card-body">
+
+            <!-- Étapes -->
+            <div class="steps" style="margin-bottom:32px;">
+              <div class="step-item">
+                <div class="step-circle active" id="step1-circle">1</div>
+                <div class="step-label">Situation personnelle</div>
+              </div>
+              <div class="step-line" id="line1"></div>
+              <div class="step-item">
+                <div class="step-circle" id="step2-circle">2</div>
+                <div class="step-label">Situation financière</div>
+              </div>
+              <div class="step-line" id="line2"></div>
+              <div class="step-item">
+                <div class="step-circle" id="step3-circle">3</div>
+                <div class="step-label">Nature du litige</div>
+              </div>
+            </div>
+
+            <!-- Étape 1 -->
+            <div id="step1">
+              <div class="form-grid form-grid-2">
+                <div>
+                  <label class="form-label">Date de naissance <span>*</span></label>
+                  <input type="date" class="form-control" id="f-dob" required />
+                </div>
+                <div>
+                  <label class="form-label">Téléphone <span>*</span></label>
+                  <input type="tel" class="form-control" id="f-tel" placeholder="514-555-1234" required />
+                </div>
+                <div class="col-span-2">
+                  <label class="form-label">Adresse complète <span>*</span></label>
+                  <input type="text" class="form-control" id="f-adresse" placeholder="123 rue Principale, Longueuil, QC J4H 1A1" required />
+                </div>
+                <div>
+                  <label class="form-label">Personnes à charge <span>*</span></label>
+                  <input type="number" class="form-control" id="f-charges" min="0" max="20" value="0" required />
+                  <p class="form-hint">Enfants et autres personnes dépendant de vous financièrement</p>
+                </div>
+                <div>
+                  <label class="form-label">Bénéficiaire d'aide sociale</label>
+                  <select class="form-control" id="f-aide-sociale">
+                    <option value="false">Non</option>
+                    <option value="true">Oui – je reçois de l'aide sociale</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-top:24px;text-align:right;">
+                <button class="btn btn-primary" onclick="goStep(2)">Étape suivante →</button>
+              </div>
+            </div>
+
+            <!-- Étape 2 -->
+            <div id="step2" class="hidden">
+              <div class="alert alert-info">
+                <span>ℹ️</span>
+                Les seuils d'admissibilité sont calculés automatiquement selon la Loi sur l'aide juridique du Québec.
+              </div>
+              <div class="form-grid form-grid-2">
+                <div>
+                  <label class="form-label">Revenu annuel brut <span>*</span></label>
+                  <input type="number" class="form-control" id="f-revenu" min="0" step="100" placeholder="45000" required />
+                  <p class="form-hint">Revenus de toutes sources avant impôt</p>
+                </div>
+                <div>
+                  <label class="form-label">Actif total</label>
+                  <input type="number" class="form-control" id="f-actif" min="0" step="100" value="0" placeholder="0" />
+                  <p class="form-hint">Valeur de vos biens (épargne, propriété, véhicule…)</p>
+                </div>
+              </div>
+              <div style="margin-top:24px;display:flex;justify-content:space-between;">
+                <button class="btn btn-secondary" onclick="goStep(1)">← Retour</button>
+                <button class="btn btn-primary" onclick="goStep(3)">Étape suivante →</button>
+              </div>
+            </div>
+
+            <!-- Étape 3 -->
+            <div id="step3" class="hidden">
+              <div class="form-grid">
+                <div>
+                  <label class="form-label">Type de matière juridique <span>*</span></label>
+                  <select class="form-control" id="f-matiere" required>
+                    <option value="">— Sélectionner —</option>
+                    <option value="civil">Civil (contrat, responsabilité…)</option>
+                    <option value="familial">Familial (divorce, garde, pension…)</option>
+                    <option value="logement">Logement (régie du logement…)</option>
+                    <option value="immigration">Immigration et réfugiés</option>
+                    <option value="penal_mineur">Pénal mineur</option>
+                    <option value="administratif">Droit administratif</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label">Description du litige <span>*</span></label>
+                  <textarea class="form-control" id="f-description" rows="5"
+                    placeholder="Décrivez brièvement la situation juridique pour laquelle vous demandez l'aide… (minimum 20 caractères)" required></textarea>
+                </div>
+              </div>
+              <div style="margin-top:24px;display:flex;justify-content:space-between;">
+                <button class="btn btn-secondary" onclick="goStep(2)">← Retour</button>
+                <button class="btn btn-primary" id="btn-soumettre" onclick="soumettre()">
+                  <span id="soum-text">📤 Soumettre et évaluer</span>
+                  <span id="soum-loader" class="loading-spinner hidden"></span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- RÉSULTAT ÉVALUATION -->
+      <div id="view-resultat" class="hidden" style="max-width:680px;margin:0 auto;">
+        <div class="card">
+          <div class="card-header">
+            <h3>📊 Résultat de l'évaluation</h3>
+            <button class="btn btn-secondary btn-sm" id="btn-retour2">← Retour à la liste</button>
+          </div>
+          <div class="card-body">
+            <div id="resultat-box"></div>
+            <hr class="divider" />
+            <div id="resultat-details"></div>
+            <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;">
+              <button class="btn btn-primary" id="btn-creer-dossier">📁 Créer un dossier</button>
+              <button class="btn btn-secondary" onclick="showListe()">← Retour à la liste</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+requireAuth();
+initSidebar('admissibilite');
+
+let currentStep = 1;
+let lastDemandeId = null;
+const matiereLabel = { civil:'Civil', familial:'Familial', logement:'Logement', immigration:'Immigration', penal_mineur:'Pénal mineur', administratif:'Administratif' };
+
+function showListe() {
+  document.getElementById('view-liste').classList.remove('hidden');
+  document.getElementById('view-form').classList.add('hidden');
+  document.getElementById('view-resultat').classList.add('hidden');
+  loadListe();
+}
+
+function showForm() {
+  document.getElementById('view-liste').classList.add('hidden');
+  document.getElementById('view-form').classList.remove('hidden');
+  document.getElementById('view-resultat').classList.add('hidden');
+  goStep(1);
+}
+
+function showResultat() {
+  document.getElementById('view-liste').classList.add('hidden');
+  document.getElementById('view-form').classList.add('hidden');
+  document.getElementById('view-resultat').classList.remove('hidden');
+}
+
+function goStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById(`step${i}`).classList.toggle('hidden', i !== n);
+    const circle = document.getElementById(`step${i}-circle`);
+    circle.classList.remove('active');
+    if (i < n) {
+      circle.classList.add('done');
+      circle.textContent = '✓';
+    } else if (i === n) {
+      circle.classList.add('active');
+      circle.textContent = i;
+    } else {
+      circle.classList.remove('done');
+      circle.textContent = i;
+    }
+  });
+  if (n > 1) document.getElementById('line1').classList.add('done');
+  if (n > 2) document.getElementById('line2').classList.add('done');
+  currentStep = n;
+}
+
+async function loadListe() {
+  const statut  = document.getElementById('filter-statut').value;
+  const matiere = document.getElementById('filter-matiere').value;
+  let params = [];
+  if (statut) params.push(`statut=${statut}`);
+  if (matiere) params.push(`type_matiere=${matiere}`);
+
+  try {
+    const data = await AdmissibiliteAPI.liste(params.join('&'));
+    const items = data.items || data;
+    document.getElementById('count-label').textContent = `${items.length} demande(s) trouvée(s)`;
+    renderListe(items);
+  } catch(e) {
+    showToast('Erreur chargement : ' + e.message, 'error');
+  }
+}
+
+function renderListe(items) {
+  const tbody = document.getElementById('liste-tbody');
+  if (!items || items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📭</div><h3>Aucune demande</h3><p>Cliquez sur "+ Nouvelle demande" pour commencer.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = items.map(d => `
+    <tr>
+      <td class="td-primary">${d.numero_demande}</td>
+      <td>${matiereLabel[d.type_matiere] || d.type_matiere}</td>
+      <td>${formatMoney(d.revenu_annuel)}</td>
+      <td style="text-align:center;">${d.nb_personnes_charge}</td>
+      <td>${d.score_admissibilite != null ? `<strong>${d.score_admissibilite.toFixed(1)}</strong>/100` : '—'}</td>
+      <td>${statutBadge(d.statut)}</td>
+      <td class="td-muted">${formatDate(d.cree_le)}</td>
+      <td>
+        ${d.statut === 'en_attente' ? `<button class="btn btn-sm btn-primary" onclick="evaluer(${d.id})">🤖 Évaluer</button>` : ''}
+        <button class="btn btn-sm btn-secondary" onclick="voirDetail(${d.id})" style="margin-left:4px;">👁 Voir</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function evaluer(id) {
+  try {
+    showToast('Évaluation en cours…', 'info');
+    const result = await AdmissibiliteAPI.evaluer(id);
+    lastDemandeId = id;
+    afficherResultat(result);
+    showResultat();
+  } catch(e) {
+    showToast('Erreur évaluation : ' + e.message, 'error');
+  }
+}
+
+async function voirDetail(id) {
+  try {
+    const d = await AdmissibiliteAPI.detail(id);
+    lastDemandeId = id;
+    const fakeResult = {
+      statut: d.statut,
+      score: d.score_admissibilite || 0,
+      admissible: d.statut === 'admissible',
+      motif: d.motif_decision || 'Aucune décision encore',
+      seuil_revenu_applicable: 0,
+      details: {},
+    };
+    afficherResultat(fakeResult, d);
+    showResultat();
+  } catch(e) {
+    showToast('Erreur : ' + e.message, 'error');
+  }
+}
+
+function afficherResultat(r, d) {
+  const admissible = r.admissible || r.statut === 'admissible';
+  const cls = admissible ? 'admissible' : (r.statut === 'en_attente' ? 'en-attente' : 'non-admissible');
+  const icon = admissible ? '✅' : (r.statut === 'en_attente' ? '⏳' : '❌');
+
+  document.getElementById('resultat-box').innerHTML = `
+    <div class="result-box ${cls}">
+      <div class="result-title">${icon} ${admissible ? 'ADMISSIBLE à l\'aide juridique' : (r.statut === 'en_attente' ? 'EN ATTENTE d\'évaluation' : 'NON ADMISSIBLE à l\'aide juridique')}</div>
+      <div class="result-score" style="color:${admissible ? '#15803d' : (r.statut === 'en_attente' ? '#92400e' : '#b91c1c')}">${r.score?.toFixed(1) ?? '—'}<span style="font-size:18px;">/100</span></div>
+      <div class="result-motif">${r.motif || '—'}</div>
+    </div>
+  `;
+
+  const details = r.details || {};
+  document.getElementById('resultat-details').innerHTML = `
+    <h4 style="margin-bottom:12px;font-size:14px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Détails de l'évaluation</h4>
+    <div class="form-grid form-grid-2">
+      ${Object.entries(details).map(([k,v]) => `
+        <div style="background:#f8fafc;border-radius:10px;padding:12px;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">${k.replace(/_/g,' ')}</div>
+          <div style="font-size:15px;font-weight:600;margin-top:4px;">${typeof v === 'number' ? v.toFixed(2) : v}</div>
+        </div>
+      `).join('') || '<div style="color:#64748b;font-size:14px;">Détails non disponibles</div>'}
+    </div>
+  `;
+
+  document.getElementById('btn-creer-dossier').onclick = () => {
+    window.location.href = `dossiers.html?demande_id=${lastDemandeId}`;
+  };
+  document.getElementById('btn-creer-dossier').style.display = admissible ? 'inline-flex' : 'none';
+}
+
+async function soumettre() {
+  const dob = document.getElementById('f-dob').value;
+  const tel = document.getElementById('f-tel').value;
+  const adresse = document.getElementById('f-adresse').value;
+  const charges = parseInt(document.getElementById('f-charges').value) || 0;
+  const aide = document.getElementById('f-aide-sociale').value === 'true';
+  const revenu = parseFloat(document.getElementById('f-revenu').value) || 0;
+  const actif = parseFloat(document.getElementById('f-actif').value) || 0;
+  const matiere = document.getElementById('f-matiere').value;
+  const description = document.getElementById('f-description').value;
+
+  if (!dob || !tel || !adresse || !matiere || description.length < 20) {
+    showToast('Veuillez remplir tous les champs obligatoires (description min. 20 caractères)', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btn-soumettre');
+  btn.disabled = true;
+  document.getElementById('soum-text').textContent = 'Soumission…';
+  document.getElementById('soum-loader').classList.remove('hidden');
+
+  try {
+    const demande = await AdmissibiliteAPI.creer({
+      date_naissance: dob,
+      telephone: tel,
+      adresse: adresse,
+      nb_personnes_charge: charges,
+      beneficiaire_aide_sociale: aide,
+      revenu_annuel: revenu,
+      actif_total: actif,
+      type_matiere: matiere,
+      description_litige: description,
+    });
+
+    lastDemandeId = demande.id;
+    showToast('Demande créée ! Évaluation automatique en cours…', 'info');
+
+    const result = await AdmissibiliteAPI.evaluer(demande.id);
+    afficherResultat(result);
+    showResultat();
+  } catch(e) {
+    showToast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('soum-text').textContent = '📤 Soumettre et évaluer';
+    document.getElementById('soum-loader').classList.add('hidden');
+  }
+}
+
+document.getElementById('btn-nouvelle').addEventListener('click', showForm);
+document.getElementById('btn-retour').addEventListener('click', showListe);
+document.getElementById('btn-retour2').addEventListener('click', showListe);
+document.getElementById('filter-statut').addEventListener('change', loadListe);
+document.getElementById('filter-matiere').addEventListener('change', loadListe);
+
+// Check if URL has #new
+if (window.location.hash === '#new') showForm();
+else loadListe();
+</script>
+</body>
+</html>

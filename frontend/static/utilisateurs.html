@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JustiLink – Utilisateurs</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">⚖️</div>
+      <div class="brand-text"><h2>JustiLink</h2><p>District de Longueuil</p></div>
+    </div>
+    <nav class="sidebar-nav">
+      <p class="nav-section-title">Navigation</p>
+      <a href="dashboard.html" class="nav-item" data-page="dashboard"><span class="nav-icon">📊</span> Tableau de bord</a>
+      <a href="admissibilite.html" class="nav-item" data-page="admissibilite"><span class="nav-icon">✅</span> Admissibilité</a>
+      <a href="dossiers.html" class="nav-item" data-page="dossiers"><span class="nav-icon">📁</span> Dossiers</a>
+      <a href="documents.html" class="nav-item" data-page="documents"><span class="nav-icon">📄</span> Documents</a>
+      <a href="transmissions.html" class="nav-item" data-page="transmissions"><span class="nav-icon">📡</span> Transmissions</a>
+      <p class="nav-section-title">Administration</p>
+      <a href="utilisateurs.html" class="nav-item" data-page="utilisateurs"><span class="nav-icon">👥</span> Utilisateurs</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebar-avatar">?</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebar-name">Chargement…</div>
+          <div class="user-role" id="sidebar-role">—</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logout-btn"><span>🚪</span> Déconnexion</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>👥 Gestion des utilisateurs</h1>
+        <p>Administration des comptes — Accès réservé aux administrateurs</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" id="btn-nouveau">+ Nouvel utilisateur</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <div id="view-liste">
+        <div class="card">
+          <div class="card-header">
+            <div><h3>📋 Liste des utilisateurs</h3><p id="count-label">Chargement…</p></div>
+            <button class="btn btn-secondary btn-sm" onclick="loadListe()">🔄 Actualiser</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nom complet</th>
+                  <th>Courriel</th>
+                  <th>Rôle</th>
+                  <th>Statut</th>
+                  <th>MFA</th>
+                  <th>Créé le</th>
+                </tr>
+              </thead>
+              <tbody id="liste-tbody">
+                <tr><td colspan="6" style="text-align:center;padding:32px;color:#64748b;">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- MODAL NOUVEL UTILISATEUR -->
+<div class="modal-overlay hidden" id="modal-user">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>👤 Nouvel utilisateur</h3>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid form-grid-2" style="gap:16px;">
+        <div>
+          <label class="form-label">Prénom <span style="color:red">*</span></label>
+          <input type="text" class="form-control" id="f-prenom" required />
+        </div>
+        <div>
+          <label class="form-label">Nom <span style="color:red">*</span></label>
+          <input type="text" class="form-control" id="f-nom" required />
+        </div>
+        <div class="col-span-2">
+          <label class="form-label">Courriel <span style="color:red">*</span></label>
+          <input type="email" class="form-control" id="f-email" required />
+        </div>
+        <div>
+          <label class="form-label">Mot de passe <span style="color:red">*</span></label>
+          <input type="password" class="form-control" id="f-mdp" placeholder="Min. 8 car., 1 maj., 1 chiffre" required />
+        </div>
+        <div>
+          <label class="form-label">Rôle <span style="color:red">*</span></label>
+          <select class="form-control" id="f-role" required>
+            <option value="citoyen">👤 Citoyen</option>
+            <option value="avocat">👨‍⚖️ Avocat</option>
+            <option value="agent_aj">🏛️ Agent AJ</option>
+            <option value="greffier">⚖️ Greffier</option>
+            <option value="admin">👑 Administrateur</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary btn-sm" onclick="creerUtilisateur()">💾 Créer</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+requireAuth();
+initSidebar('utilisateurs');
+
+function closeModal() { document.getElementById('modal-user').classList.add('hidden'); }
+
+async function loadListe() {
+  try {
+    const data  = await UtilisateursAPI.liste();
+    const items = data.items || data;
+    document.getElementById('count-label').textContent = `${items.length} utilisateur(s)`;
+    const tbody = document.getElementById('liste-tbody');
+    if (!items.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👥</div><h3>Aucun utilisateur</h3></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = items.map(u => `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;background:#1a3a6b;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0;">
+              ${(u.prenom?.[0]||'') + (u.nom?.[0]||'')}
+            </div>
+            <div>
+              <div style="font-weight:600;">${u.prenom} ${u.nom}</div>
+            </div>
+          </div>
+        </td>
+        <td class="td-muted">${u.email}</td>
+        <td>${roleBadge(u.role)}</td>
+        <td>${u.actif ? '<span class="badge badge-success">Actif</span>' : '<span class="badge badge-danger">Inactif</span>'}</td>
+        <td>${u.mfa_active ? '🔐 Activé' : '—'}</td>
+        <td class="td-muted">${formatDate(u.cree_le)}</td>
+      </tr>
+    `).join('');
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+}
+
+async function creerUtilisateur() {
+  try {
+    await UtilisateursAPI.creer({
+      prenom: document.getElementById('f-prenom').value,
+      nom: document.getElementById('f-nom').value,
+      email: document.getElementById('f-email').value,
+      mot_de_passe: document.getElementById('f-mdp').value,
+      role: document.getElementById('f-role').value,
+    });
+    showToast('Utilisateur créé avec succès !', 'success');
+    closeModal();
+    loadListe();
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+}
+
+document.getElementById('btn-nouveau').addEventListener('click', () => {
+  document.getElementById('modal-user').classList.remove('hidden');
+});
+
+loadListe();
+</script>
+</body>
+</html>

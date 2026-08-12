@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JustiLink – Tableau de bord</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">⚖️</div>
+      <div class="brand-text">
+        <h2>JustiLink</h2>
+        <p>District de Longueuil</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <p class="nav-section-title">Navigation</p>
+      <a href="dashboard.html" class="nav-item" data-page="dashboard">
+        <span class="nav-icon">📊</span> Tableau de bord
+      </a>
+      <a href="admissibilite.html" class="nav-item" data-page="admissibilite">
+        <span class="nav-icon">✅</span> Admissibilité
+      </a>
+      <a href="dossiers.html" class="nav-item" data-page="dossiers">
+        <span class="nav-icon">📁</span> Dossiers
+      </a>
+      <a href="documents.html" class="nav-item" data-page="documents">
+        <span class="nav-icon">📄</span> Documents
+      </a>
+      <a href="transmissions.html" class="nav-item" data-page="transmissions">
+        <span class="nav-icon">📡</span> Transmissions
+      </a>
+
+      <p class="nav-section-title" data-role="admin">Administration</p>
+      <a href="utilisateurs.html" class="nav-item" data-page="utilisateurs" data-role="admin">
+        <span class="nav-icon">👥</span> Utilisateurs
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebar-avatar">?</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebar-name">Chargement…</div>
+          <div class="user-role" id="sidebar-role">—</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logout-btn">
+        <span>🚪</span> Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Tableau de bord</h1>
+        <p id="topbar-date">Chargement…</p>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-btn" title="Notifications">
+          🔔
+          <span class="notif-dot"></span>
+        </div>
+        <div class="topbar-btn" title="Actualiser" id="refresh-btn">🔄</div>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- STATS -->
+      <div class="stats-grid" id="stats-grid">
+        <!-- Chargement skeleton -->
+        <div class="stat-card"><div class="skeleton" style="width:52px;height:52px;border-radius:14px"></div><div style="flex:1"><div class="skeleton" style="height:28px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:14px;width:80%"></div></div></div>
+        <div class="stat-card"><div class="skeleton" style="width:52px;height:52px;border-radius:14px"></div><div style="flex:1"><div class="skeleton" style="height:28px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:14px;width:80%"></div></div></div>
+        <div class="stat-card"><div class="skeleton" style="width:52px;height:52px;border-radius:14px"></div><div style="flex:1"><div class="skeleton" style="height:28px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:14px;width:80%"></div></div></div>
+        <div class="stat-card"><div class="skeleton" style="width:52px;height:52px;border-radius:14px"></div><div style="flex:1"><div class="skeleton" style="height:28px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:14px;width:80%"></div></div></div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:24px;">
+
+        <!-- DOSSIERS RÉCENTS -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>📁 Dossiers récents</h3>
+              <p>5 derniers dossiers ouverts</p>
+            </div>
+            <a href="dossiers.html" class="btn btn-secondary btn-sm">Voir tout</a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Numéro</th>
+                  <th>Client</th>
+                  <th>Matière</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody id="dossiers-tbody">
+                <tr><td colspan="4"><div class="skeleton" style="height:16px;margin:8px 0"></div></td></tr>
+                <tr><td colspan="4"><div class="skeleton" style="height:16px;margin:8px 0"></div></td></tr>
+                <tr><td colspan="4"><div class="skeleton" style="height:16px;margin:8px 0"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- DEMANDES EN ATTENTE -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>✅ Demandes d'admissibilité</h3>
+              <p>Dernières demandes reçues</p>
+            </div>
+            <a href="admissibilite.html" class="btn btn-secondary btn-sm">Voir tout</a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Numéro</th>
+                  <th>Revenu</th>
+                  <th>Matière</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody id="admiss-tbody">
+                <tr><td colspan="4"><div class="skeleton" style="height:16px;margin:8px 0"></div></td></tr>
+                <tr><td colspan="4"><div class="skeleton" style="height:16px;margin:8px 0"></div></td></tr>
+                <tr><td colspan="4"><div class="skeleton" style="height:16px;margin:8px 0"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BOTTOM ROW -->
+      <div class="grid-2">
+
+        <!-- TAUX AUTOMATISATION -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>🤖 Taux d'automatisation</h3>
+              <p>Évaluations traitées automatiquement</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span class="text-sm font-semibold">Admissibilité automatique</span>
+              <span class="font-bold" id="auto-pct">—%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="auto-bar" style="width:0%"></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:8px;">
+              <span class="text-sm font-semibold">Transmissions réussies</span>
+              <span class="font-bold" id="trans-pct">—%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="trans-bar" style="width:0%;background:linear-gradient(90deg,#16a34a,#22c55e)"></div>
+            </div>
+            <div style="margin-top:20px;padding:12px;background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
+              <p class="text-sm" style="color:#15803d;">✅ Délai moyen de traitement : <strong id="delai-moyen">—</strong> heures</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIONS RAPIDES -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>⚡ Actions rapides</h3>
+              <p>Accès direct aux fonctions principales</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <a href="admissibilite.html#new" class="btn btn-outline" style="flex-direction:column;padding:16px;gap:6px;height:auto;">
+                <span style="font-size:24px;">✅</span>
+                <span style="font-size:13px;">Nouvelle demande</span>
+              </a>
+              <a href="dossiers.html#new" class="btn btn-outline" style="flex-direction:column;padding:16px;gap:6px;height:auto;">
+                <span style="font-size:24px;">📁</span>
+                <span style="font-size:13px;">Nouveau dossier</span>
+              </a>
+              <a href="documents.html" class="btn btn-outline" style="flex-direction:column;padding:16px;gap:6px;height:auto;">
+                <span style="font-size:24px;">📄</span>
+                <span style="font-size:13px;">Déposer document</span>
+              </a>
+              <a href="transmissions.html" class="btn btn-outline" style="flex-direction:column;padding:16px;gap:6px;height:auto;">
+                <span style="font-size:24px;">📡</span>
+                <span style="font-size:13px;">Transmettre au greffe</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+requireAuth();
+initSidebar('dashboard');
+
+// Date
+const now = new Date();
+document.getElementById('topbar-date').textContent =
+  now.toLocaleDateString('fr-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+async function loadDashboard() {
+  try {
+    // Load stats
+    const stats = await DashboardAPI.stats();
+    renderStats(stats);
+
+    // Load recent dossiers
+    const dossiers = await DossiersAPI.liste('limit=5&sort=date_ouverture:desc');
+    renderDossiers(dossiers.items || dossiers);
+
+    // Load recent admissibilite
+    const admiss = await AdmissibiliteAPI.liste('limit=5');
+    renderAdmiss(admiss.items || admiss);
+
+  } catch (e) {
+    showToast('Erreur lors du chargement des données : ' + e.message, 'error');
+  }
+}
+
+function renderStats(s) {
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-icon blue">📁</div>
+      <div class="stat-info">
+        <div class="stat-value">${s.total_dossiers ?? 0}</div>
+        <div class="stat-label">Total dossiers</div>
+        <div class="stat-sub">↑ ${s.dossiers_ouverts ?? 0} ouverts</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">✅</div>
+      <div class="stat-info">
+        <div class="stat-value">${s.demandes_admissibilite_total ?? 0}</div>
+        <div class="stat-label">Demandes reçues</div>
+        <div class="stat-sub">↑ ${s.demandes_admissibles ?? 0} admissibles</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon orange">📄</div>
+      <div class="stat-info">
+        <div class="stat-value">${s.total_documents ?? 0}</div>
+        <div class="stat-label">Documents déposés</div>
+        <div class="stat-sub">📡 ${s.total_transmissions ?? 0} transmissions</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon teal">🤖</div>
+      <div class="stat-info">
+        <div class="stat-value">${(s.taux_automatisation_pct ?? 0).toFixed(0)}%</div>
+        <div class="stat-label">Automatisation AJ</div>
+        <div class="stat-sub">⏱ ${(s.delai_moyen_traitement_h ?? 0).toFixed(1)}h moyen</div>
+      </div>
+    </div>
+  `;
+
+  const autoPct = Math.min(100, s.taux_automatisation_pct ?? 0);
+  const transPct = Math.min(100, s.taux_succes_transmission_pct ?? 0);
+  document.getElementById('auto-pct').textContent = autoPct.toFixed(1) + '%';
+  document.getElementById('auto-bar').style.width = autoPct + '%';
+  document.getElementById('trans-pct').textContent = transPct.toFixed(1) + '%';
+  document.getElementById('trans-bar').style.width = transPct + '%';
+  document.getElementById('delai-moyen').textContent = (s.delai_moyen_traitement_h ?? 0).toFixed(1);
+}
+
+function renderDossiers(items) {
+  const tbody = document.getElementById('dossiers-tbody');
+  if (!items || items.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state" style="padding:20px"><p>Aucun dossier pour l\'instant</p></div></td></tr>';
+    return;
+  }
+  const matiereLabel = { civil:'Civil', familial:'Familial', logement:'Logement', immigration:'Immigration', penal_mineur:'Pénal mineur', administratif:'Administratif' };
+  tbody.innerHTML = items.slice(0,5).map(d => `
+    <tr>
+      <td class="td-primary">${d.numero_dossier}</td>
+      <td>${d.nom_client}</td>
+      <td class="td-muted">${matiereLabel[d.type_matiere] || d.type_matiere}</td>
+      <td>${statutBadge(d.statut)}</td>
+    </tr>
+  `).join('');
+}
+
+function renderAdmiss(items) {
+  const tbody = document.getElementById('admiss-tbody');
+  if (!items || items.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state" style="padding:20px"><p>Aucune demande pour l\'instant</p></div></td></tr>';
+    return;
+  }
+  const matiereLabel = { civil:'Civil', familial:'Familial', logement:'Logement', immigration:'Immigration', penal_mineur:'Pénal mineur', administratif:'Administratif' };
+  tbody.innerHTML = items.slice(0,5).map(d => `
+    <tr>
+      <td class="td-primary">${d.numero_demande}</td>
+      <td>${formatMoney(d.revenu_annuel)}</td>
+      <td class="td-muted">${matiereLabel[d.type_matiere] || d.type_matiere}</td>
+      <td>${statutBadge(d.statut)}</td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('refresh-btn').addEventListener('click', loadDashboard);
+loadDashboard();
+</script>
+</body>
+</html>
