@@ -9,9 +9,10 @@ from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.database import engine, Base
 from app import models  # noqa – crée les tables
-from app.routers import users, admissibilite, dossiers, documents, greffe, dashboard
+from app.routers import users, admissibilite, dossiers, documents, greffe, dashboard, auth_router
 from app.auth import hacher_mot_de_passe
 from app.database import SessionLocal
+
 
 
 
@@ -81,6 +82,7 @@ app.include_router(dossiers.router)
 app.include_router(documents.router)
 app.include_router(greffe.router)
 app.include_router(dashboard.router)
+app.include_router(auth_router.router) 
 app.mount("/static", StaticFiles(directory="frontend/static", html=True), name="static")
 
 

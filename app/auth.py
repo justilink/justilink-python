@@ -1,3 +1,7 @@
+import pyotp
+import qrcode
+import io
+import base64
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
@@ -88,4 +92,55 @@ def journaliser(db, action, ressource=None, ressource_id=None,
         adresse_ip=adresse_ip, details=details
     ))
     db.commit()
+# ─── Refresh Token ────────────────────────────────────────────────────────────
+
+def creer_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(days=7)
+    to_encode.update({"exp": expire, "type": "refresh"})
+    return jwt.encode(to_encode, settings.SECRET_KEY,
+                      algorithm=settings.ALGORITHM)
+
+
+# ─── MFA (TOTP) ───────────────────────────────────────────────────────────────
+
+def generer_secret_mfa() -> str:
+    return pyotp.random_base32()
+
+
+def obtenir_qr_mfa(email: str, secret: str) -> str:
+    """Retourne une image QR code encodée en base64 (PNG)."""
+    totp = pyotp.TOTP(secret)
+    uri = totp.provisioning_uri(name=email, issuer_name="JustiLink")
+    img = qrcode.make(uri)
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    return base64.b64encode(buffer.getvalue()).decode()
+
+
+def verifier_code_mfa(secret: str, code: str) -> bool:
+    return pyotp.TOTP(secret).verify(code, valid_window=1)
+
+
+# ─── Dépendance MFA en attente ────────────────────────────────────────────────
+
+def get_utilisateur_mfa_en_attente(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> models.Utilisateur:
+    """Utilisé uniquement pendant l'étape de vérification MFA."""
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY,
+                             algorithms=[settings.ALGORITHM])
+        if not payload.get("mfa_pending"):
+            raise HTTPException(status_code=401, detail="Token invalide")
+        email: str = payload.get("sub")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Token expiré")
+    user = db.query(models.Utilisateur).filter(
+        models.Utilisateur.email == email
+    ).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Utilisateur introuvable")
+    return user
 
