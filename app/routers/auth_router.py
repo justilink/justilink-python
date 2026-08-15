@@ -7,7 +7,7 @@ from typing import Optional
 from jose import JWTError, jwt
 
 from app.database import get_db
-from backend import models
+from app import models
 from app.config import settings
 from app.auth import (
     authentifier_utilisateur,
