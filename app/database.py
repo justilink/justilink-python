@@ -2,17 +2,30 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from app.config import settings
 
-engine = create_engine(
-    settings.DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    echo=settings.DEBUG,
-)
+# Railway fournit "postgres://" → SQLAlchemy exige "postgresql://"
+DATABASE_URL = settings.DATABASE_URL.replace("postgres://", "postgresql://")
 
-@event.listens_for(engine, "connect")
-def set_sqlite_pragma(dbapi_conn, _):
-    cursor = dbapi_conn.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.close()
+# Configuration selon le type de base de données
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(
+        DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        echo=settings.DEBUG,
+    )
+
+    @event.listens_for(engine, "connect")
+    def set_sqlite_pragma(dbapi_conn, _):
+        cursor = dbapi_conn.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
+else:
+    # PostgreSQL (Railway) — SSL obligatoire
+    engine = create_engine(
+        DATABASE_URL,
+        connect_args={"sslmode": "require"},
+        echo=settings.DEBUG,
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -25,3 +38,4 @@ def get_db():
         yield db
     finally:
         db.close()
+
