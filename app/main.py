@@ -1,5 +1,7 @@
 import os
-print(f"🔍 DATABASE_URL = {os.environ.get('DATABASE_URL', 'NON DÉFINIE')[:40]}")
+print(f"🔍 DATABASE_URL  = {os.environ.get('DATABASE_URL', 'NON DÉFINIE')}")
+print(f"🔍 PGHOST        = {os.environ.get('PGHOST', 'NON DÉFINIE')}")
+print(f"🔍 PGUSER        = {os.environ.get('PGUSER', 'NON DÉFINIE')}")
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,14 +9,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from app.config import settings
+print(f"🔍 settings.DB   = {settings.DATABASE_URL[:50]}")
 from app.database import engine, Base
 from app import models  # noqa – crée les tables
 from app.routers import users, admissibilite, dossiers, documents, greffe, dashboard
 from app.routers.auth_router import router as auth_router
 from app.auth import hacher_mot_de_passe
 from app.database import SessionLocal
-
-
 
 
 def init_db():
@@ -59,10 +60,8 @@ async def lifespan(app: FastAPI):
         init_db()
         print("✅ Base de données initialisée avec succès")
     except Exception as e:
-        print(f"❌ ERREUR BASE DE DONNÉES: {type(e).__name__}: {e}")
-        raise
+        print(f"❌ ERREUR BASE DE DONNÉES (non bloquant): {type(e).__name__}: {e}")
     yield
-
 
 
 app = FastAPI(
@@ -105,4 +104,5 @@ def accueil():
 @app.get("/health", tags=["Santé"])
 def health():
     return {"status": "healthy", "version": settings.APP_VERSION}
+
 
