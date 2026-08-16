@@ -1,11 +1,10 @@
+import os
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from app.config import settings
 
-# Railway fournit "postgres://" → SQLAlchemy exige "postgresql://"
 DATABASE_URL = settings.DATABASE_URL.replace("postgres://", "postgresql://")
 
-# Configuration selon le type de base de données
 if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(
         DATABASE_URL,
@@ -20,10 +19,8 @@ if DATABASE_URL.startswith("sqlite"):
         cursor.close()
 
 else:
-    # PostgreSQL (Railway) — SSL obligatoire
     engine = create_engine(
         DATABASE_URL,
-        connect_args={"sslmode": "require"},
         echo=settings.DEBUG,
     )
 
