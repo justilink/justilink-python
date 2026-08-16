@@ -61,6 +61,7 @@ class Utilisateur(Base):
                                 default=RoleUtilisateur.CITOYEN)
     actif              = Column(Boolean, default=True)
     mfa_active         = Column(Boolean, default=False)
+    mfa_secret         = Column(String(64), nullable=True)
     derniere_connexion = Column(DateTime, nullable=True)
     cree_le            = Column(DateTime, default=datetime.utcnow)
     modifie_le         = Column(DateTime, default=datetime.utcnow,
