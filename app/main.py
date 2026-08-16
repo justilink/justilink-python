@@ -54,8 +54,14 @@ def init_db():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-    init_db()
+    try:
+        init_db()
+        print("✅ Base de données initialisée avec succès")
+    except Exception as e:
+        print(f"❌ ERREUR BASE DE DONNÉES: {type(e).__name__}: {e}")
+        raise
     yield
+
 
 
 app = FastAPI(
