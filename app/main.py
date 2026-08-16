@@ -1,4 +1,6 @@
 import os
+import os
+print(f"🔍 DATABASE_URL = {os.environ.get('DATABASE_URL', 'NON DÉFINIE')[:40]}")
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
